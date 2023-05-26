@@ -20,6 +20,13 @@ To get started with the legend simulation analysis, you can follow two different
 
 4. Create an analysis folder with a meaningful name (avoid spaces, start each word with a capital letter, e.g., NeutronProductionVsCapture), following the directory structure:
 
+#### Directory Structure
+- `data`: Here you must add:
+        1. the macro files used to create the simulation you are going to analyse;
+        2. a .txt file with the 'git hash' of the Warwick Simulation that you ran the simulation.
+- `code`: Contains the analysis code and scripts;
+- `requeriments`: a list of all the packages (with version) needed to run your code;
+- `results`: Stores the .png generated visualizations (500kb maximum for each file, as a way to keep a history).
 
 5. Create a `README.md` file in your analysis folder with the following information:
 - Name, date, and contact information.
