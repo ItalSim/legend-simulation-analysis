@@ -1,0 +1,2 @@
+Git repository: https://github.com/ItalSim/warwick-legend
+git hash dbd5543cab2466edaece441ef5fedd10ca0a474a

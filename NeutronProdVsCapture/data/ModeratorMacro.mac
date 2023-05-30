@@ -1,0 +1,34 @@
+# minimal command set test
+# verbose
+
+/run/verbose 0
+/tracking/verbose 0
+/run/setCut 3.0 cm
+/tracking/verbose 0
+
+/WLGD/detector/setGeometry baseline_large_reentrance_tube
+/WLGD/detector/Cryostat_Radius_Outer 325
+/WLGD/detector/Cryostat_Height 325
+
+/WLGD/detector/With_Gd_Water 1
+/WLGD/detector/With_NeutronModerators 3
+/WLGD/detector/Which_Material PMMA
+
+/WLGD/detector/TurbineAndTube_Height 300 cm
+/WLGD/detector/TurbineAndTube_Radius 200 cm
+/WLGD/detector/TurbineAndTube_Width  10 cm
+/WLGD/detector/TurbineAndTube_zPosition 42 cm
+/WLGD/event/saveAllEvents 1
+
+#Init
+/run/initialize
+
+#Idle state
+/WLGD/step/getDepositionInfo 1
+/WLGD/step/getIndividualDepositionInfo 1
+/WLGD/runaction/WriteOutAllNeutronInfoRoot 1
+/WLGD/generator/setGenerator Musun                    # set the primary generator to the (Alpha,n) generator in the moderators
+/WLGD/generator/setMUSUNFile /lfs/l1/legend/users/iabritta/Musun_FromMoritz/musun_gs_50k_0000.dat
+
+# start
+/run/beamOn 50000
