@@ -7,7 +7,7 @@ This idea comes from Bernhard and was shared to the ItalSim Slack channel on the
 Potential variables: material, height/radius of larger shield, and size difference between larger shield
 and smaller shield (which determines the height and radius of the smaller shield).
 
-##Code Overview
+## Code Overview
 
 There are no analysis scripts for this simple study. Information was extracted from the output files using the ROOT CLI and exported to an external plotting program which cannot be included here. More information is available near the bottom of this readme.
 
@@ -26,7 +26,7 @@ The output file was also modified to only include neutron capture information, t
 Each job was executed with multithreading enabled, and thread count set to 24, the maximum available on the standard processing nodes used for simulation.
 
 
-##Dependencies
+## Dependencies
 
  - ROOT v.6 or later
  - The job submission scripts rely on slurm, v.22
@@ -35,7 +35,7 @@ Each job was executed with multithreading enabled, and thread count set to 24, t
  - A bash environment (not sure what version)
 
 
-##Instructions for execution
+## Instructions for execution
 
 Ensure all dependencies are available
 Execute the recommended commit of WLGD, with the `DoubleShield.mac` macro in the data/ directory (make sure to replace the `src/WLGDDetectorConstruction.cc` in your fork of WLGD with the one included in data/)
