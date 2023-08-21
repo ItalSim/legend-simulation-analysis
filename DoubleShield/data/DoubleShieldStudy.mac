@@ -1,0 +1,19 @@
+/WLGD/detector/setGeometry baseline_large_reentrance_tube
+/WLGD/event/saveAllEvents 1
+
+/WLGD/detector/Cryostat_Radius_Outer 325
+/WLGD/detector/Cryostat_Height 325
+#/WLGD/detector/Cryostat_Vacgap 50
+/WLGD/detector/With_Gd_Water 1
+/WLGD/detector/With_NeutronModerators 3
+/WLGD/detector/Which_Material PMMA
+/WLGD/detector/TurbineAndTube_Height 400 cm#Needs full height, for some reason
+/WLGD/detector/TurbineAndTube_Radius 200 cm
+/WLGD/detector/TurbineAndTube_Width  5  cm
+/WLGD/detector/TurbineAndTube_zPosition 42 cm
+/run/initialize
+/WLGD/generator/setMUSUNDirectory /home/xu_lab/shared/CJMJ/data
+#/WLGD/generator/setMUSUNFile /home/xu_lab/shared/CJMJ/data/test/musun_gs_50k_1995.dat
+/WLGD/generator/setGenerator Musun
+
+/run/beamOn 1000000
