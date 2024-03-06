@@ -1,0 +1,40 @@
+/WLGD/runaction/WriteOpticalProductionData 1
+/WLGD/runaction/WriteStepData 1
+/WLGD/runaction/WriteOpticalMapData 1
+
+/WLGD/detector/setGeometry baseline_large_reentrance_tube
+
+/WLGD/detector/Cryostat_Radius_Outer 356
+/WLGD/detector/Cryostat_Height 385
+#/WLGD/detector/Cryostat_Vacgap 50
+/WLGD/detector/With_Gd_Water 1
+/WLGD/detector/With_NeutronModerators 5
+/WLGD/detector/Which_Material PMMA
+/WLGD/detector/TurbineAndTube_Height 150 cm#Half-height
+/WLGD/detector/TurbineAndTube_Radius 200 cm
+/WLGD/detector/TurbineAndTube_Width  10  cm
+/WLGD/detector/TurbineAndTube_zPosition 42 cm
+
+/WLGD/optics/WithOptics 1
+
+#Having a non-zero xenon dopant concentration changes the
+#optical properties to 100 ppm molar Xe doped LAr
+#This setting is 330 ppm MASS fraction, ~100 ppm molar
+#/WLGD/detector/XeConc .33 #in mg/g, mass fraction
+
+#Not implemented yet
+/WLGD/optics/CladdingLayers 2
+/WLGD/optics/CladdingMaterial PEN
+/WLGD/optics/CladdingThickness 100 um
+/WLGD/optics/LightGuideLength 100 cm
+/WLGD/optics/LightGuideWidth 3 cm
+/WLGD/optics/LightGuideMaterial PMMA
+/WLGD/optics/LightGuideSpacing 30 cm
+/WLGD/optics/NLightGuides 12
+/WLGD/optics/UseWLSCoating 1
+/WLGD/optics/WLSCoatingMaterial TPB
+
+/run/initialize
+/WLGD/generator/setGenerator OpticalMap
+
+/run/beamOn 1000000
