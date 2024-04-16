@@ -54,6 +54,7 @@ mergeopticalmap.C
 opticalmappostproc.C
 
 The first two are applied from the 'jobs' directory (batch executed), but the third is typically run interactively from the shell.
+pe_calculator.py can be run interactively from the shell for small files, otherwise submit jobs.
 
 User-defined parameters:
 - buildopticalmap.C
@@ -67,6 +68,7 @@ User-defined parameters:
 - opticalmappostproc.C
   - The user must change the input directory to point to the 'merged' directory, and the output should point wherever the user would like the map to be stored
   - The user should add the number of voxels in the x, y, and z direction (labeled xbins,ybins,zbins in the script)
+
   
 Special note about the sampling volume limits: the optical map is always a rectangular prism. The sampling volume shape from the optical simulations must be fully enclosed by this prism. Examples for the sampling limits of the 'inner' optical map and 'outer' optical map along the sides of the shield have been included, but these may change as the LEGEND design changes.
 
