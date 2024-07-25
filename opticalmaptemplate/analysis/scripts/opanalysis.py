@@ -5,19 +5,25 @@ import numpy as np
 import pandas as pd
 
 
-def load_data(path, files_to_open):
-    # path = "/lfs/l1/legend/users/cbarton/simulations/campaigns/opmapprocessing/24-04-11-secondfullprocessing-98k-350cmwlsrcryo/output"
-    files = sorted(os.listdir(path))[1:]
+def load_data(path, shield_surface, files_to_open):
+    """
+    Load data from files into unique array
+
+    path: absolute path to the files location
+    shield_surface: either "panel" or "lid"
+    files_to_open: either string "all" to load data from all the files or int with number of files
+    """
+
+    files = sorted([file for file in os.listdir(path) if "appliedmap" in file])
 
     if files_to_open != "all":
         files = files[:files_to_open]
-
 
     df = pd.DataFrame()
 
     for file in tqdm(files):
         try:
-            tf = uproot.open(os.path.join(path, file))["appliedmapinfo"]
+            tf = uproot.open(os.path.join(path, file))[f"{shield_surface}hits"]
         
             tmp_df = pd.DataFrame()
             tmp_df["EventID"]  = tf["EventID"].array(library="np")
@@ -84,8 +90,7 @@ def get_AAr_volume():
     return AAr_volume
 
 
-# assuming a volume of AAr and given the activity of Ar39 in natural argon from literature 
-# P. Benetti et al. “Measurement of the specific activity of ar-39 in natural argon”. In: Nucl. Instrum. Meth. A 574 (2007), pp. 83–88. doi: 10.1016/j.nima.2007. 01.106. arXiv: astro-ph/0603131.
+# assuming a volume of AAr and given the activity of Ar39 in natural argon from literature
 # compute rate of Ar39 in Hz
 def get_Ar39_rate():
 
@@ -211,7 +216,7 @@ def slice_panel(df, n_bar, detection_efficiency):
     photons_per_panel = photons_per_panel[photons_per_panel != 0]
     
     return photons_per_panel  
- 
+
 
 # this function computes the number of contiguous panels being hit
 # 0 in the output means that are no events actually detected
