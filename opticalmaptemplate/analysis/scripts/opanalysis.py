@@ -23,14 +23,12 @@ def load_data(path, shield_surface, files_to_open):
 
     for file in tqdm(files):
         try:
-            tf = uproot.open(os.path.join(path, file))[f"{shield_surface}hits"]
-        
             tmp_df = pd.DataFrame()
-            tmp_df["EventID"]  = tf["EventID"].array(library="np")
-            tmp_df["sector"]   = tf["sector"].array(library="np")
-            tmp_df["panel"]    = tf["panel"].array(library="np")
-            tmp_df["zband"]    = tf["zband"].array(library="np")
-            tmp_df["time"]     = tf["time"].array(library="np")
+
+            tf = uproot.open(os.path.join(path, file))[f"{shield_surface}hits"]
+
+            for var in tf.keys():
+                tmp_df[var]  = tf[var].array(library="np")
             
         except:
             print(f"skipping {file}")
@@ -39,9 +37,6 @@ def load_data(path, shield_surface, files_to_open):
         
     evt_list = sorted(df.EventID.unique())
     total_nof_events = len(evt_list)
-
-    bins = np.arange(0, 0.005, 0.00001)
-    df['time_bin'] = pd.cut(df['time'], bins=bins)
 
     return df
 
