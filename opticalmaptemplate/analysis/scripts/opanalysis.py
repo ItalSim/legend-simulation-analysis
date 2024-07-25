@@ -121,7 +121,7 @@ def get_muon_rate():
 # H: height of the PMMA panel (where light guides will be attached)
 # bar_width: light guide width
 # n_bar = number of light guides bar to attach
-# remember that bar_widt and n_bar should be such that bar_width * n_bar = H
+# remember that bar_width and n_bar should be such that bar_width * n_bar = H
 # output 
 # light guides position in bins, possible empyt spaces
 def get_guides(H, bar_width, n_bar):
@@ -131,10 +131,10 @@ def get_guides(H, bar_width, n_bar):
     # total free space between light guides
     S = H - n_bar*bar_width
     
-    # single space between to adjacent light guides
+    # single space between two adjacent light guides
     s = S // (n_bar - 1)
 
-    # residual space (if != 0 you basically split it in 2 and add it at the top and bottom to make to guides fit the panel and be evenly spaced)
+    # residual space (if != 0 you basically split it in 2 and add it at the top and bottom to make guides fit into the panel and be evenly spaced)
     residual_space = H - n_bar*bar_width - s*(n_bar - 1)
 
     slices = []
@@ -175,9 +175,9 @@ def get_guides(H, bar_width, n_bar):
 # take data from histogrammed panel surface and slice it into a given number of light guides according to
 # the their size and number; then apply single light guide Photon Detection Efficiency (PDE)
 # output is the number of PE detected per light guide per panel per event
-def slicing(df, n_bar, detection_efficiency, time_window = 0):
+def slicing(df, surface_length, n_bar, bar_width, detection_efficiency, time_window = 0):
     
-    residual_space, slices, guide_position = get_guides(300, 10, n_bar)
+    residual_space, slices, guide_position = get_guides(surface_length, bar_width, n_bar)
     
     if time_window:
         bins = np.arange(0, 0.005, time_window)
@@ -203,9 +203,9 @@ def slicing(df, n_bar, detection_efficiency, time_window = 0):
 
 # take output from function "slicing"
 # and sum over all PE detected in a single panel/surface
-def slice_panel(df, n_bar, detection_efficiency):
+def slice_panel(df, surface_length, n_bar, bar_width, detection_efficiency):
         
-    sliced_df = slicing(df, n_bar, detection_efficiency)
+    sliced_df = slicing(df, surface_length, n_bar, bar_width, detection_efficiency)
 
     photons_per_panel = sliced_df.apply(lambda d: sum(d))
     photons_per_panel = photons_per_panel[photons_per_panel != 0]
