@@ -112,4 +112,4 @@ for eff in detection_efficiency_list:
         pickle.dump(fig, file)
 
 data = pd.DataFrame(distances_data)
-data.to_hdf(path_or_buf = "distances_data.h5", key = "data")
+data.to_hdf(path_or_buf = "panels_hit_per_evt.h5", key = "data")
