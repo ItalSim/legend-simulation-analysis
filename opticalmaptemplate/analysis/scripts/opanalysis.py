@@ -1,8 +1,8 @@
 import os
-from tqdm import tqdm
 import uproot
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 
 def load_data(path, shield_surface, files_to_open):
@@ -267,3 +267,46 @@ def compute_contigous_surface(panels_hit):
             return_list.append(nof_contiguous_panels[0] + nof_contiguous_panels[-1])
 
     return return_list
+
+def distance_point_line(point, line):
+    """
+    Compute the distance between a point and a line.
+    
+    point: tuple (x0, y0) point's coordinates
+    line: tuple (A, B, C) coefficients of the line in the form Ax + By + C = 0
+    
+    Ritorna la distanza tra il punto e la retta.
+    """
+    x0, y0 = point
+    A, B, C = line
+    
+    # Calcola la distanza utilizzando la formula
+    distanza = abs(A * x0 + B * y0 + C) / np.sqrt(A**2 + B**2)
+    
+    return distanza
+
+def geometrical_median(points, tol=1e-5):
+    """
+    Calculate the geometric median (Fermat-Weber point) of a set of 2D points.
+    
+    points: array of shape (n, 2), where n is the number of points
+    tol: tolerance for convergence
+    """
+    points = np.asarray(points)
+    median = np.mean(points, axis=0)
+    
+    while True:
+        distances = np.linalg.norm(points - median, axis=1)
+        non_zero = distances > tol
+        if not np.any(non_zero):
+            break
+        
+        weights = 1 / distances[non_zero]
+        new_median = np.sum(points[non_zero] * weights[:, np.newaxis], axis=0) / np.sum(weights)
+        
+        if np.linalg.norm(new_median - median) < tol:
+            break
+        
+        median = new_median
+    
+    return median
