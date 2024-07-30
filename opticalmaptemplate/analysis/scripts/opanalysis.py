@@ -1,8 +1,10 @@
+from legend_plot_style import LEGENDPlotStyle as lps
 import os
 import uproot
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+from matplotlib import pyplot as plt
 
 
 def load_data(path, shield_surface, files_to_open):
@@ -213,14 +215,18 @@ def slice_panel(df, surface_length, n_bar, bar_width, detection_efficiency):
     return photons_per_panel  
 
 
-# this function computes the number of contiguous panels being hit
-# 0 in the output means that are no events actually detected
-# 1 means that only one panel was hit
-# > 1 gives exactly the number of contigous panels (between 2 and max number of contiguous surfaces)
-# WARNING: at the moment, surfaces outside the moderator are numbered [1,12] and inside [13,24]
-# surfaces 12 and 13 might be considered as contigous, 
-# please be careful and shift the inner guides (e.g. +100) when passing data to this function 
 def compute_contigous_surface(panels_hit):
+    """
+    Function to compute the number of contiguous panels being hit.
+    - 0: no events actually detected
+    - 1: only one panel was hit
+    > 1: number of contigous panels (between 2 and max number of contiguous surfaces)
+
+    WARNING: at the moment, surfaces outside the moderator are numbered [1,12] and inside [13,24]
+    surfaces 12 and 13 might be considered as contigous, 
+    please be careful and shift the inner guides to much more different values 
+    (e.g. +100) when passing data to this function 
+    """
     
     if panels_hit == 0:
         return 0
@@ -271,19 +277,22 @@ def compute_contigous_surface(panels_hit):
 def distance_point_line(point, line):
     """
     Compute the distance between a point and a line.
+    In this case the absolute value of the numerator is missing so that 
+    from the sign of the distance we understand if the point
+    is below (d < 0) or above (d > 0) the line.
     
     point: tuple (x0, y0) point's coordinates
     line: tuple (A, B, C) coefficients of the line in the form Ax + By + C = 0
     
-    Ritorna la distanza tra il punto e la retta.
+    Return the distance between the point and the line.
     """
     x0, y0 = point
     A, B, C = line
     
     # Calcola la distanza utilizzando la formula
-    distanza = abs(A * x0 + B * y0 + C) / np.sqrt(A**2 + B**2)
+    distance = A * x0 + B * y0 + C / np.sqrt(A**2 + B**2)
     
-    return distanza
+    return distance
 
 def geometrical_median(points, tol=1e-5):
     """
@@ -310,3 +319,54 @@ def geometrical_median(points, tol=1e-5):
         median = new_median
     
     return median
+
+def plot_values(filename, key, values, ylim = [0,10]):
+    """
+    Function to plot single valued variable from optical analysis (e.g. light yield)
+    as a function of the different experimental configuration (PDE, light guides on the lid, 
+    light guides on the lateral panels).
+
+    filename: absolute path + filename of the hdf5 file where output of the analysis is stored
+    key: dataframe key saved inside the hdf5 file
+    values: name of the column in the dataframe to plot
+    ylim: (optional) specify y-axis lim
+    """
+    
+    data = pd.read_hdf(path_or_buf = filename, key = key)
+
+    fig, ax = plt.subplots(figsize = (18,3))
+
+    grouped_data = data.groupby(["eff", "n_lat_bar","n_lid_bar"])[values].mean()
+
+    ax = grouped_data.plot(linestyle="", marker=".", color=lps.colors["legend_darkblue"], markersize = 10)
+
+    xticks_labels = [f'{n_lid}' for eff, n_lat, n_lid in grouped_data.index]
+    ax.set_xticks(range(len(xticks_labels)))
+    ax.set_xticklabels(xticks_labels, rotation=0, ha = "center")
+    ax.set_xlabel('light guides on the lid')
+    ax.set_ylim(ylim)
+
+    subset_color = lps.colors['legend_blue']
+    xpos = -0.5
+
+    for i in range(len(data.n_lid_bar.unique())):
+        for y in range(len(data.n_lid_bar.unique())):
+            ypos = xpos + y*4 + 4
+            plt.axvline(ypos, linestyle = "--", color = subset_color, linewidth = 1, zorder = 1)
+            text = f"lateral: {data.n_lat_bar.unique()[y]}"
+            # zposition = 5.8
+            zposition = ylim[1] - 0.2
+            valign = "top"
+            if i > 1:
+                zposition = ylim[0] + 0.2
+                valign = "bottom"
+            ax.text(ypos - 0.01, zposition, text, rotation=90, verticalalignment=valign, horizontalalignment='right', color = subset_color)
+            
+        xpos = 15.5 + i*16
+        plt.axvline(xpos, color = "black", linestyle = "-", zorder = 2)
+        text = f"PDE: {data.eff.unique()[i]*100} %"
+        ax.text(xpos - 0.01, ylim[1], text, rotation=0, verticalalignment='bottom', horizontalalignment='right', fontsize = 13)
+
+    plt.tight_layout()
+    
+    return fig, ax
