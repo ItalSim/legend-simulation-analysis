@@ -3,6 +3,7 @@ import math
 import pickle
 import uproot
 import random
+import argparse
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -12,16 +13,29 @@ import matplotlib.animation as animation
 from matplotlib.colors import LogNorm, Normalize
 import opanalysis
 
+parser = argparse.ArgumentParser(description = 'script to generate plot and data with panels hit per muon event')
+parser.add_argument('-i', '--isotope', required = True, help = "specify isotope, available options: H, Ar, Ar_and_H")
+parser.add_argument('-n', '--nfiles', required = True, help = "specify number of files to open (int or \"all\")")
+
+args = parser.parse_args()
+if vars(args)["nfiles"] != "all":
+    n_files = int(vars(args)["nfiles"])
+else:
+    n_files = vars(args)["nfiles"]
+isotope = vars(args)["isotope"]
+
+isotope_dict = {"Ar": 18, "H": 1}
+
+#new_path = "/lfs/l1/legend/users/cbarton/simulations/campaigns/opmapprocessing/24-07-18-Ar41+H2-350mwlsrcryo-allmaps/output2"
 new_path = "/lfs/l1/legend/users/cbarton/simulations/campaigns/opmapprocessing/24-07-18-Ar41+H2-350mwlsrcryo-allmaps/output"
 files = [file for file in sorted(os.listdir(new_path)) if "appliedmap" in file]
-
-n_files = "all"
 
 panel_df = opanalysis.load_data(new_path, "panel", n_files)
 lid_df = opanalysis.load_data(new_path, "lid", n_files)
 
-panel_df = panel_df[panel_df.protonnumber == 18]
-lid_df   = lid_df[lid_df.protonnumber == 18]
+if isotope != "Ar_and_H":
+    panel_df = panel_df[panel_df.protonnumber == isotope_dict[isotope]]
+    lid_df   = lid_df[lid_df.protonnumber == isotope_dict[isotope]]
 
 lid_df.rename(columns={"xband" : "zband"}, inplace = True)
 lid_df["panel"] = lid_df.panel + 24
@@ -122,7 +136,7 @@ for eff in detection_efficiency_list:
             t = np.arange(0, n, 0.1)
             ax[lat_bar_idx][lid_bar_idx].plot(t,t, color = "red")
     
-        plot_name = f"plots/panels_hit_per_evt/ar41_lateral_and_lids_{int(eff*1000)}"
+        plot_name = f"plots/panels_hit_per_evt/{isotope}_lateral_and_lids_{int(eff*1000)}"
         fig.suptitle(f"PDE:{eff*100}%")
         fig.tight_layout()
         plt.savefig(plot_name + ".png")
@@ -135,6 +149,6 @@ for eff in detection_efficiency_list:
 distance_data = pd.DataFrame(distances_data)
 all_data = pd.DataFrame(panels_hit_per_evt_data)
 
-with pd.HDFStore("plots/panels_hit_per_evt/panels_hit_per_evt.h5") as store:
+with pd.HDFStore(f"plots/panels_hit_per_evt/panels_hit_per_evt_{isotope}.h5") as store:
    store.put('distances', distance_data)
    store.put('all', all_data)
