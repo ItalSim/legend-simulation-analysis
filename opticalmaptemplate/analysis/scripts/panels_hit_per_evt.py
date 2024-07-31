@@ -26,7 +26,6 @@ isotope = vars(args)["isotope"]
 
 isotope_dict = {"Ar": 18, "H": 1}
 
-#new_path = "/lfs/l1/legend/users/cbarton/simulations/campaigns/opmapprocessing/24-07-18-Ar41+H2-350mwlsrcryo-allmaps/output2"
 new_path = "/lfs/l1/legend/users/cbarton/simulations/campaigns/opmapprocessing/24-07-18-Ar41+H2-350mwlsrcryo-allmaps/output"
 files = [file for file in sorted(os.listdir(new_path)) if "appliedmap" in file]
 

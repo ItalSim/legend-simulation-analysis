@@ -320,7 +320,7 @@ def geometrical_median(points, tol=1e-5):
     
     return median
 
-def plot_values(filename, key, values, ylim = [0,10]):
+def plot_values(filename, key, values, ylim = [0,10], marker = {"style": ".", "color": lps.colors["legend_darkblue"], "size": 10}, ax = None):
     """
     Function to plot single valued variable from optical analysis (e.g. light yield)
     as a function of the different experimental configuration (PDE, light guides on the lid, 
@@ -334,11 +334,14 @@ def plot_values(filename, key, values, ylim = [0,10]):
     
     data = pd.read_hdf(path_or_buf = filename, key = key)
 
-    fig, ax = plt.subplots(figsize = (18,3))
+    if ax is None:
+        fig, ax = plt.subplots(figsize = (18,3))
+    else:
+        fig = None
 
     grouped_data = data.groupby(["eff", "n_lat_bar","n_lid_bar"])[values].mean()
 
-    ax = grouped_data.plot(linestyle="", marker=".", color=lps.colors["legend_darkblue"], markersize = 10)
+    ax = grouped_data.plot(linestyle="", marker=marker["style"], color=marker["color"], markersize = marker["size"])
 
     xticks_labels = [f'{n_lid}' for eff, n_lat, n_lid in grouped_data.index]
     ax.set_xticks(range(len(xticks_labels)))
@@ -353,14 +356,13 @@ def plot_values(filename, key, values, ylim = [0,10]):
         for y in range(len(data.n_lid_bar.unique())):
             ypos = xpos + y*4 + 4
             plt.axvline(ypos, linestyle = "--", color = subset_color, linewidth = 1, zorder = 1)
-            text = f"lateral: {data.n_lat_bar.unique()[y]}"
-            # zposition = 5.8
+            text = f"{data.n_lat_bar.unique()[y]}"
             zposition = ylim[1] - 0.2
             valign = "top"
-            if i > 1:
-                zposition = ylim[0] + 0.2
-                valign = "bottom"
-            ax.text(ypos - 0.01, zposition, text, rotation=90, verticalalignment=valign, horizontalalignment='right', color = subset_color)
+            # if i > 1:
+            #     zposition = ylim[0] + 0.2
+            #     valign = "bottom"
+            ax.text(ypos - 0.01, zposition, text, rotation=90, verticalalignment=valign, horizontalalignment='right', color = subset_color, fontsize = 13)
             
         xpos = 15.5 + i*16
         plt.axvline(xpos, color = "black", linestyle = "-", zorder = 2)
