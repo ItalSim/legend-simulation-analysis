@@ -51,6 +51,10 @@ def get_cryostat_volume():
     return cryostat_volume
 
 
+def unpack(lista):
+    return [a for b in list(lista) for a in b ]
+
+
 def get_RT_volume():
 
     RT_radius = 0.95 # m
@@ -87,9 +91,12 @@ def get_AAr_volume():
     return AAr_volume
 
 
-# assuming a volume of AAr and given the activity of Ar39 in natural argon from literature
-# compute rate of Ar39 in Hz
 def get_Ar39_rate():
+
+    """
+    assuming a volume of AAr and given the activity of Ar39 in natural argon from literature
+    compute rate of Ar39 in Hz
+    """
 
     lAr_density = 1396 # kg/m3
     AAr_volume = get_AAr_volume()
@@ -102,31 +109,42 @@ def get_Ar39_rate():
     return ar39_rate
 
 
-# compute how many events of Ar39 you expect in a given time window
 def get_expected_ar39_in_window(window = 1e-5):
+    """
+    compute how many events of Ar39 you expect in a given time window
+    """
 
     ar39_rate = get_Ar39_rate()
 
     return ar39_rate * window
 
 
-# muon rate is specific of MUSUN sim
-# it won't be correct for other MUSUN sims
 def get_muon_rate():
+    """
+    muon rate is specific of MUSUN sim
+    it won't be correct for other MUSUN sims
+    """
 
     muon_rate = 263 # muons / hour
 
     return muon_rate / 3600 # Hz
 
 
-# input
-# H: height of the PMMA panel (where light guides will be attached)
-# bar_width: light guide width
-# n_bar = number of light guides bar to attach
-# remember that bar_width and n_bar should be such that bar_width * n_bar = H
-# output 
-# light guides position in bins, possible empyt spaces
 def get_guides(H, bar_width, n_bar):
+
+    """
+    H: height of the PMMA panel (where light guides will be attached)
+    bar_width: light guide width
+    n_bar: number of light guides bar to attach
+
+    remember that bar_width and n_bar should be such that bar_width * n_bar = H
+    output 
+    light guides position in bins, possible empyt spaces
+    """
+
+    # Check for invalid input where n_bar is zero
+    if n_bar == 0:
+        return 0, [0], [0]
     
     if bar_width * n_bar > H:
         raise ValueError('A very specific bad thing happened.')
@@ -174,10 +192,13 @@ def get_guides(H, bar_width, n_bar):
     return residual_space, slices, guide_position
 
 
-# take data from histogrammed panel surface and slice it into a given number of light guides according to
-# the their size and number; then apply single light guide Photon Detection Efficiency (PDE)
-# output is the number of PE detected per light guide per panel per event
 def slicing(df, surface_length, n_bar, bar_width, detection_efficiency, time_window = 0):
+
+    """
+    take data from histogrammed panel surface and slice it into a given number of light guides according to
+    the their size and number; then apply single light guide Photon Detection Efficiency (PDE)
+    output is the number of PE detected per light guide per panel per event
+    """
     
     residual_space, slices, guide_position = get_guides(surface_length, bar_width, n_bar)
     
@@ -203,9 +224,11 @@ def slicing(df, surface_length, n_bar, bar_width, detection_efficiency, time_win
     return sliced_df
 
 
-# take output from function "slicing"
-# and sum over all PE detected in a single panel/surface
 def slice_panel(df, surface_length, n_bar, bar_width, detection_efficiency):
+    """
+    take output from function "slicing"
+    and sum over all PE detected in a single panel/surface
+    """
         
     sliced_df = slicing(df, surface_length, n_bar, bar_width, detection_efficiency)
 
@@ -274,6 +297,7 @@ def compute_contigous_surface(panels_hit):
 
     return return_list
 
+
 def distance_point_line(point, line):
     """
     Compute the distance between a point and a line.
@@ -293,6 +317,7 @@ def distance_point_line(point, line):
     distance = A * x0 + B * y0 + C / np.sqrt(A**2 + B**2)
     
     return distance
+
 
 def geometrical_median(points, tol=1e-5):
     """
@@ -320,7 +345,8 @@ def geometrical_median(points, tol=1e-5):
     
     return median
 
-def plot_values(filename, key, values, ylim = [0,10], marker = {"style": ".", "color": lps.colors["legend_darkblue"], "size": 10}, ax = None):
+
+def plot_values(filename, key, values, ylim = [0,10], marker = {"style": ".", "color": "#1A2A5B", "size": 10}, ax = None):
     """
     Function to plot single valued variable from optical analysis (e.g. light yield)
     as a function of the different experimental configuration (PDE, light guides on the lid, 
@@ -349,25 +375,28 @@ def plot_values(filename, key, values, ylim = [0,10], marker = {"style": ".", "c
     ax.set_xlabel('light guides on the lid')
     ax.set_ylim(ylim)
 
-    subset_color = lps.colors['legend_blue']
-    xpos = -0.5
+    subset_color = "#07A9FF"
+    shift = -0.5
+    lat_position = 0
 
-    for i in range(len(data.n_lid_bar.unique())):
-        for y in range(len(data.n_lid_bar.unique())):
-            ypos = xpos + y*4 + 4
-            plt.axvline(ypos, linestyle = "--", color = subset_color, linewidth = 1, zorder = 1)
-            text = f"{data.n_lat_bar.unique()[y]}"
+    lid_options = len(data.n_lid_bar.unique())
+    lat_options = len(data.n_lat_bar.unique())
+    eff_options = len(data.eff.unique())
+
+    for eff_idx in range(eff_options):
+        for lat_idx in range(lat_options):
+            
+            lat_position = shift + lid_options + lat_idx * lid_options + eff_idx * lid_options * lat_options
+            plt.axvline(lat_position, linestyle = "--", color = subset_color, linewidth = 1, zorder = 1)
+            text = f"{data.n_lat_bar.unique()[lat_idx]}"
             zposition = ylim[1] - 0.2
             valign = "top"
-            # if i > 1:
-            #     zposition = ylim[0] + 0.2
-            #     valign = "bottom"
-            ax.text(ypos - 0.01, zposition, text, rotation=90, verticalalignment=valign, horizontalalignment='right', color = subset_color, fontsize = 13)
-            
-        xpos = 15.5 + i*16
-        plt.axvline(xpos, color = "black", linestyle = "-", zorder = 2)
-        text = f"PDE: {data.eff.unique()[i]*100} %"
-        ax.text(xpos - 0.01, ylim[1], text, rotation=0, verticalalignment='bottom', horizontalalignment='right', fontsize = 13)
+            ax.text(lat_position - 0.01, zposition, text, rotation=90, verticalalignment=valign, horizontalalignment='right', color = subset_color, fontsize = 13)
+
+        eff_pos = shift + (eff_idx + 1) * lid_options * lat_options
+        plt.axvline(eff_pos, color = "black", linestyle = "-", zorder = 2)
+        text = f"PDE: {data.eff.unique()[eff_idx]*100} %"
+        ax.text(eff_pos - 0.01, ylim[1], text, rotation=0, verticalalignment='bottom', horizontalalignment='right', fontsize = 13)
 
     plt.tight_layout()
     
