@@ -4,12 +4,14 @@
     "geometry moderator": 3,
     "radius": 170,
     "height": 300,
-    "width": 6,
+    "width": 8,
+    "cryo_outer_radius" : 350,
+    "cryo_outer_height" : 375,
     
     "muon simulations":
     {
         "musun_path" : "/lfs/l1/legend/users/morella/Musun_FromMoritz",
-        "output dir": "6cm",
+        "output dir": "8cm",
         "musun files": 200,
         "beam_on": 50000
     },
